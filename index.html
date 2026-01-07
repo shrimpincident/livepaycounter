@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Accumulator - Real-time Australian Salary Tracker</title>
+    <meta name="description" content="Watch your Australian salary accumulate in real-time. Calculates after-tax earnings with accurate 2024-25 tax rates, Medicare Levy, and visualizes your earnings as cash.">
+    <meta name="keywords" content="salary calculator, australian tax, pay calculator, earnings tracker, take home pay">
+    <meta name="author" content="Pay Accumulator">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Pay Accumulator - Real-time Salary Tracker">
+    <meta property="og:description" content="Watch your Australian salary accumulate second-by-second. See your after-tax earnings grow in real-time with cash visualization.">
+    <meta property="og:type" content="website">
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#0a0f1a">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --accent-gold: #f59e0b;
+            --accent-gold-dim: #b45309;
+            --accent-emerald: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3a4f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+
+        .container {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Setup Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .currency-prefix {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem 1rem 1rem 2.5rem;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+
+        input[type="number"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .toggle-label span:first-child {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .toggle-label span:last-child {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+            background: white;
+        }
+
+        /* Calculate Button */
+        .btn-calculate {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+            border: none;
+            border-radius: 10px;
+            color: #0a0f1a;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        /* Results Section */
+        #results {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .breakdown {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .breakdown-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .breakdown-value.negative {
+            color: #ef4444;
+        }
+
+        .breakdown-value.positive {
+            color: var(--accent-emerald);
+        }
+
+        /* Accumulator Display */
+        .accumulator-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 34, 53, 0.8) 100%);
+            border: 1px solid var(--accent-gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .accumulator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold) 0%, var(--accent-emerald) 100%);
+        }
+
+        .accumulator-label {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .accumulator-time {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .dual-accumulator {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .accumulator-section {
+            flex: 1;
+            text-align: center;
+        }
+
+        .accumulator-divider {
+            width: 1px;
+            height: 80px;
+            background: linear-gradient(180deg, transparent 0%, var(--border-color) 50%, transparent 100%);
+        }
+
+        .accumulator-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+            line-height: 1;
+            margin-top: 0.5rem;
+        }
+
+        .accumulator-value.gross {
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            text-shadow: none;
+        }
+
+        .accumulator-section.primary .accumulator-value {
+            font-size: 2.5rem;
+        }
+
+        .accumulator-cents {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .accumulator-section.primary .accumulator-cents {
+            font-size: 1.5rem;
+        }
+
+        .take-home-badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            vertical-align: middle;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            margin: 1.5rem 0 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .progress-percent {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-emerald);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-gold) 0%, var(--accent-emerald) 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        /* Breakdown Sections */
+        .breakdown-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .breakdown-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .breakdown-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Earnings Table */
+        .earnings-table {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .earnings-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding-bottom: 0.5rem;
+        }
+
+        .earnings-header span:not(:first-child) {
+            text-align: right;
+        }
+
+        .earnings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .earnings-row:last-child {
+            border-bottom: none;
+        }
+
+        .earnings-row.featured {
+            background: rgba(245, 158, 11, 0.05);
+            margin: 0.5rem -1rem 0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-bottom: none;
+        }
+
+        .earnings-period {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .earnings-row.featured .earnings-period {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .earnings-value {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .earnings-value.highlight {
+            color: var(--accent-emerald);
+            font-weight: 600;
+        }
+
+        .earnings-row.featured .earnings-value {
+            font-size: 0.95rem;
+        }
+
+        /* Cash Visualization */
+        .cash-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 41, 59, 0.9) 100%);
+        }
+
+        .cash-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cash-wallet {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 150px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .cash-wallet::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .cash-empty {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            opacity: 0.6;
+        }
+
+        .cash-notes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .note-pile {
+            position: relative;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .note {
+            width: 110px;
+            height: 55px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1a1a1a;
+            position: relative;
+            box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .note::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        .note::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .note-100 {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+        }
+
+        .note-50 {
+            background: linear-gradient(135deg, #fde047 0%, #facc15 50%, #eab308 100%);
+        }
+
+        .note-20 {
+            background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%);
+        }
+
+        .note-10 {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+        }
+
+        .note-5 {
+            background: linear-gradient(135deg, #f0abfc 0%, #e879f9 50%, #d946ef 100%);
+        }
+
+        .cash-coins {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: flex-end;
+            padding-top: 0.5rem;
+        }
+
+        .coin {
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .coin-2 {
+            width: 38px;
+            height: 38px;
+            font-size: 0.75rem;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #fbbf24;
+            border: 3px solid #fbbf24;
+        }
+
+        .coin-1 {
+            width: 34px;
+            height: 34px;
+            font-size: 0.7rem;
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: #1a1a1a;
+        }
+
+        .coin-50c {
+            width: 36px;
+            height: 36px;
+            font-size: 0.6rem;
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            color: #1a1a1a;
+        }
+
+        .coin-20c {
+            width: 30px;
+            height: 30px;
+            font-size: 0.55rem;
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            color: #1a1a1a;
+        }
+
+        .coin-10c {
+            width: 28px;
+            height: 28px;
+            font-size: 0.5rem;
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            color: #1a1a1a;
+        }
+
+        .coin-5c {
+            width: 24px;
+            height: 24px;
+            font-size: 0.45rem;
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            color: #1a1a1a;
+        }
+
+        .cash-breakdown {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .cash-breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .cash-breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+
+        .cash-breakdown-item span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .cash-breakdown-item span:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .cash-total {
+            text-align: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed var(--border-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+        }
+
+        .rate-info {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            color: var(--accent-emerald);
+            font-size: 0.8rem;
+            margin: 1rem auto 0;
+            display: flex;
+            justify-content: center;
+            width: fit-content;
+        }
+
+        .status-badge.inactive {
+            background: rgba(100, 116, 139, 0.1);
+            border-color: rgba(100, 116, 139, 0.3);
+            color: var(--text-muted);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-emerald);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.inactive .pulse-dot {
+            background: var(--text-muted);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Reset Button */
+        .btn-reset {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-reset:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        /* Tax Mode Toggle */
+        .tax-toggle-container {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1rem;
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tax-toggle-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tax-toggle-btn:hover {
+            color: var(--text-secondary);
+        }
+
+        .tax-toggle-btn.active {
+            background: var(--accent-gold);
+            color: #0a0f1a;
+            font-weight: 600;
+        }
+
+        /* Single Accumulator */
+        .single-accumulator {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .single-accumulator .accumulator-value {
+            font-size: 3rem;
+            margin-top: 0.5rem;
+        }
+
+        .single-accumulator .accumulator-cents {
+            font-size: 1.8rem;
+        }
+
+        /* Simplified Earnings Table */
+        .earnings-table-simple {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .earnings-row-simple {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .earnings-row-simple:last-child {
+            border-bottom: none;
+        }
+
+        .earnings-row-simple.featured {
+            background: rgba(245, 158, 11, 0.05);
+            margin: 0.5rem -1rem 0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border-bottom: none;
+        }
+
+        .earnings-row-simple .earnings-period {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .earnings-row-simple.featured .earnings-period {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .earnings-row-simple .earnings-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .earnings-row-simple.featured .earnings-value {
+            font-size: 1.1rem;
+        }
+
+        .earnings-row-simple.small {
+            padding: 0.4rem 0;
+        }
+
+        .earnings-row-simple.small .earnings-period {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .earnings-row-simple.small .earnings-value {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Advanced Settings */
+        .advanced-settings {
+            margin-bottom: 1rem;
+        }
+
+        .advanced-toggle {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .advanced-toggle:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        .advanced-arrow {
+            font-size: 0.7rem;
+            transition: transform 0.2s ease;
+        }
+
+        .advanced-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .advanced-content {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            padding: 1rem;
+            margin-top: -1px;
+        }
+
+        .advanced-content.open {
+            display: block;
+        }
+
+        .advanced-toggle.open {
+            border-radius: 10px 10px 0 0;
+        }
+
+        .advanced-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .advanced-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .advanced-item label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .advanced-item input,
+        .advanced-item select {
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .advanced-item input:focus,
+        .advanced-item select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .advanced-item select {
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .advanced-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .dual-accumulator {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .accumulator-divider {
+                width: 80%;
+                height: 1px;
+                background: linear-gradient(90deg, transparent 0%, var(--border-color) 50%, transparent 100%);
+            }
+
+            .accumulator-value {
+                font-size: 1.8rem;
+            }
+
+            .accumulator-section.primary .accumulator-value {
+                font-size: 2.2rem;
+            }
+
+            .accumulator-cents {
+                font-size: 1rem;
+            }
+
+            .accumulator-section.primary .accumulator-cents {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">💰</div>
+                <h1>Pay Accumulator</h1>
+            </div>
+            <p class="subtitle">Watch your earnings grow in real-time</p>
+        </header>
+
+        <!-- Setup Section -->
+        <div id="setup">
+            <div class="card">
+                <div class="card-title">Your Details</div>
+                
+                <div class="input-group">
+                    <label for="salary">Annual Salary (Before Tax)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-prefix">$</span>
+                        <input type="number" id="salary" placeholder="85,000" min="0" step="1000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Private Health Insurance</label>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <span>I have private hospital cover</span>
+                            <span>Affects Medicare Levy Surcharge</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="phi">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn-calculate" onclick="calculate()">Start Accumulating</button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results">
+            <!-- Tax Mode Toggle -->
+            <div class="tax-toggle-container">
+                <button class="tax-toggle-btn" id="btnBeforeTax" onclick="setTaxMode('gross')">Before Tax</button>
+                <button class="tax-toggle-btn active" id="btnAfterTax" onclick="setTaxMode('net')">After Tax</button>
+            </div>
+
+            <div class="card accumulator-card">
+                <div class="accumulator-time" id="currentTime"></div>
+                
+                <div class="single-accumulator">
+                    <div class="accumulator-label" id="accumulatorLabel">After Tax <span class="take-home-badge">Take Home</span></div>
+                    <div class="accumulator-value" id="accumulatedMain">$0<span class="accumulator-cents">.00</span></div>
+                </div>
+                
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span class="progress-label">Today's Progress</span>
+                        <span class="progress-percent" id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-time" id="progressTime">9:00 AM — 5:36 PM (1hr lunch)</div>
+                </div>
+                
+                <div class="rate-info" id="rateInfo"></div>
+                <div class="status-badge" id="statusBadge">
+                    <span class="pulse-dot"></span>
+                    <span id="statusText">Accumulating...</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Pay Breakdown</div>
+                
+                <!-- Tax deductions (only shown in After Tax mode) -->
+                <div class="breakdown-section" id="taxDeductionsSection">
+                    <div class="breakdown-section-title">Tax Deductions</div>
+                    <div class="breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Income Tax</span>
+                            <span class="breakdown-value negative" id="incomeTax">-$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Medicare Levy (2%)</span>
+                            <span class="breakdown-value negative" id="medicareLevy">-$0</span>
+                        </div>
+                        <div class="breakdown-item" id="mlsRow" style="display: none;">
+                            <span class="breakdown-label">Medicare Levy Surcharge</span>
+                            <span class="breakdown-value negative" id="mls">-$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings table (simplified single column) -->
+                <div class="breakdown-section">
+                    <div class="breakdown-section-title">Your Earnings</div>
+                    <div class="earnings-table-simple">
+                        <div class="earnings-row-simple small">
+                            <span class="earnings-period">Per Second</span>
+                            <span class="earnings-value" id="perSecond">$0.0000</span>
+                        </div>
+                        <div class="earnings-row-simple small">
+                            <span class="earnings-period">Per Minute</span>
+                            <span class="earnings-value" id="perMinute">$0.000</span>
+                        </div>
+                        <div class="earnings-row-simple">
+                            <span class="earnings-period">Per Hour</span>
+                            <span class="earnings-value highlight" id="perHour">$0</span>
+                        </div>
+                        <div class="earnings-row-simple">
+                            <span class="earnings-period">Per Day</span>
+                            <span class="earnings-value highlight" id="perDay">$0</span>
+                        </div>
+                        <div class="earnings-row-simple">
+                            <span class="earnings-period">Per Week</span>
+                            <span class="earnings-value highlight" id="perWeek">$0</span>
+                        </div>
+                        <div class="earnings-row-simple">
+                            <span class="earnings-period">Per Month</span>
+                            <span class="earnings-value highlight" id="perMonth">$0</span>
+                        </div>
+                        <div class="earnings-row-simple featured">
+                            <span class="earnings-period">Per Year</span>
+                            <span class="earnings-value highlight" id="perYear">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Visualization -->
+            <div class="card cash-card">
+                <div class="card-title">💵 Your Earnings in Cash</div>
+                <div class="cash-subtitle" id="cashSubtitle">Today's after-tax earnings as physical currency</div>
+                
+                <div class="cash-wallet" id="cashWallet">
+                    <div class="cash-empty" id="cashEmpty">
+                        <span>Start working to see your cash pile up!</span>
+                    </div>
+                    
+                    <div class="cash-notes" id="cashNotes">
+                        <!-- Notes will be dynamically inserted here -->
+                    </div>
+                    
+                    <div class="cash-coins" id="cashCoins">
+                        <!-- Coins will be dynamically inserted here -->
+                    </div>
+                </div>
+                
+                <div class="cash-breakdown" id="cashBreakdown">
+                    <!-- Breakdown text will be shown here -->
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="advanced-settings">
+                <button class="advanced-toggle" id="advancedToggle" onclick="toggleAdvancedSettings()">
+                    <span>⚙️ Advanced Settings</span>
+                    <span class="advanced-arrow" id="advancedArrow">▼</span>
+                </button>
+                <div class="advanced-content" id="advancedContent">
+                    <div class="advanced-grid">
+                        <div class="advanced-item">
+                            <label for="workHours">Working Hours/Day</label>
+                            <input type="number" id="workHours" value="8" min="1" max="24" step="0.5" onchange="applyAdvancedSettings()">
+                        </div>
+                        <div class="advanced-item">
+                            <label for="startTime">Start Time</label>
+                            <select id="startTime" onchange="applyAdvancedSettings()">
+                                <option value="6">6:00 AM</option>
+                                <option value="7">7:00 AM</option>
+                                <option value="8">8:00 AM</option>
+                                <option value="9" selected>9:00 AM</option>
+                                <option value="10">10:00 AM</option>
+                                <option value="11">11:00 AM</option>
+                                <option value="12">12:00 PM</option>
+                            </select>
+                        </div>
+                        <div class="advanced-item">
+                            <label for="lunchDuration">Lunch Break</label>
+                            <select id="lunchDuration" onchange="applyAdvancedSettings()">
+                                <option value="0">No break</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60" selected>60 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-reset" onclick="reset()">← Reconfigure</button>
+        </div>
+
+        <footer>
+            <p>Australian Tax Rates 2024-25</p>
+        </footer>
+    </div>
+
+    <script>
+        let accumulatorInterval = null;
+        let timeInterval = null;
+        let perSecondRateNet = 0;
+        let perSecondRateGross = 0;
+        let taxMode = 'net'; // 'net' for after tax, 'gross' for before tax
+        let storedGrossSalary = 0;
+        let storedNetSalary = 0;
+        
+        // Configurable settings
+        let workHoursPerDay = 8;
+        let startHour = 9;
+        let lunchDurationMinutes = 60;
+        const WORK_DAYS_PER_YEAR = 260; // ~52 weeks × 5 days
+
+        // Australian Tax Brackets 2024-25
+        function calculateIncomeTax(income) {
+            if (income <= 18200) return 0;
+            if (income <= 45000) return (income - 18200) * 0.16;
+            if (income <= 135000) return 4288 + (income - 45000) * 0.30;
+            if (income <= 190000) return 31288 + (income - 135000) * 0.37;
+            return 51638 + (income - 190000) * 0.45;
+        }
+
+        // Medicare Levy (2% with low income threshold)
+        function calculateMedicareLevy(income) {
+            const threshold = 26000;
+            const shadeInThreshold = 32500;
+            
+            if (income <= threshold) return 0;
+            if (income <= shadeInThreshold) {
+                // Shade-in: 10% of excess over threshold
+                return (income - threshold) * 0.10;
+            }
+            return income * 0.02;
+        }
+
+        // Medicare Levy Surcharge (if no PHI)
+        function calculateMLS(income, hasPHI) {
+            if (hasPHI) return 0;
+            
+            if (income <= 93000) return 0;
+            if (income <= 108000) return income * 0.01;
+            if (income <= 144000) return income * 0.0125;
+            return income * 0.015;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-AU', {
+                style: 'currency',
+                currency: 'AUD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatCurrencyWithCents(amount) {
+            const dollars = Math.floor(amount);
+            const cents = Math.floor((amount - dollars) * 100);
+            return {
+                dollars: new Intl.NumberFormat('en-AU').format(dollars),
+                cents: cents.toString().padStart(2, '0')
+            };
+        }
+
+        function calculate() {
+            const grossSalary = parseFloat(document.getElementById('salary').value) || 0;
+            const hasPHI = document.getElementById('phi').checked;
+
+            if (grossSalary <= 0) {
+                alert('Please enter a valid salary');
+                return;
+            }
+
+            const incomeTax = calculateIncomeTax(grossSalary);
+            const medicareLevy = calculateMedicareLevy(grossSalary);
+            const mls = calculateMLS(grossSalary, hasPHI);
+
+            const netSalary = grossSalary - incomeTax - medicareLevy - mls;
+
+            // Store values for toggle
+            storedGrossSalary = grossSalary;
+            storedNetSalary = netSalary;
+
+            // Calculate per-second rates
+            const totalWorkSecondsPerYear = WORK_DAYS_PER_YEAR * workHoursPerDay * 3600;
+            perSecondRateNet = netSalary / totalWorkSecondsPerYear;
+            perSecondRateGross = grossSalary / totalWorkSecondsPerYear;
+
+            // Update UI
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+            // Update tax deductions
+            document.getElementById('incomeTax').textContent = '-' + formatCurrency(incomeTax);
+            document.getElementById('medicareLevy').textContent = '-' + formatCurrency(medicareLevy);
+            
+            if (mls > 0) {
+                document.getElementById('mlsRow').style.display = 'flex';
+                document.getElementById('mls').textContent = '-' + formatCurrency(mls);
+            } else {
+                document.getElementById('mlsRow').style.display = 'none';
+            }
+
+            // Apply current tax mode
+            updateDisplayForTaxMode();
+
+            // Start the accumulator
+            startAccumulator();
+        }
+
+        function setTaxMode(mode) {
+            taxMode = mode;
+            
+            // Update toggle buttons
+            document.getElementById('btnBeforeTax').classList.toggle('active', mode === 'gross');
+            document.getElementById('btnAfterTax').classList.toggle('active', mode === 'net');
+            
+            // Update display
+            updateDisplayForTaxMode();
+            
+            // Force immediate accumulator update
+            updateAccumulator();
+        }
+
+        function updateDisplayForTaxMode() {
+            const isNet = taxMode === 'net';
+            const salary = isNet ? storedNetSalary : storedGrossSalary;
+            const rate = isNet ? perSecondRateNet : perSecondRateGross;
+            
+            // Update accumulator label
+            const label = isNet ? 'After Tax <span class="take-home-badge">Take Home</span>' : 'Before Tax';
+            document.getElementById('accumulatorLabel').innerHTML = label;
+            
+            // Update rate info
+            const rateLabel = isNet ? 'After tax' : 'Before tax';
+            document.getElementById('rateInfo').textContent = `${rateLabel}: $${(rate * 3600).toFixed(2)}/hr • $${(rate * 60).toFixed(3)}/min`;
+            
+            // Show/hide tax deductions
+            document.getElementById('taxDeductionsSection').style.display = isNet ? 'block' : 'none';
+            
+            // Update earnings table (including per second/minute/hour)
+            document.getElementById('perSecond').textContent = '$' + rate.toFixed(4);
+            document.getElementById('perMinute').textContent = '$' + (rate * 60).toFixed(3);
+            document.getElementById('perHour').textContent = formatCurrency(rate * 3600);
+            document.getElementById('perDay').textContent = formatCurrency(salary / WORK_DAYS_PER_YEAR);
+            document.getElementById('perWeek').textContent = formatCurrency(salary / 52);
+            document.getElementById('perMonth').textContent = formatCurrency(salary / 12);
+            document.getElementById('perYear').textContent = formatCurrency(salary);
+            
+            // Update cash subtitle
+            const cashLabel = isNet ? 'after-tax' : 'before-tax';
+            document.getElementById('cashSubtitle').textContent = `Today's ${cashLabel} earnings as physical currency`;
+            
+            // Update progress time text
+            updateProgressTimeText();
+        }
+        
+        function updateProgressTimeText() {
+            const startHr = startHour;
+            const endMinutes = (startHour * 60) + (workHoursPerDay * 60) + lunchDurationMinutes;
+            const endHr = Math.floor(endMinutes / 60);
+            const endMin = Math.round(endMinutes % 60);
+            
+            const formatTime = (hr, min = 0) => {
+                const period = hr >= 12 ? 'PM' : 'AM';
+                const displayHr = hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr);
+                return min > 0 ? `${displayHr}:${min.toString().padStart(2, '0')} ${period}` : `${displayHr}:00 ${period}`;
+            };
+            
+            let lunchText = '';
+            if (lunchDurationMinutes > 0) {
+                lunchText = lunchDurationMinutes >= 60 ? ` (${lunchDurationMinutes / 60}hr lunch)` : ` (${lunchDurationMinutes}min lunch)`;
+            }
+            
+            document.getElementById('progressTime').textContent = `${formatTime(startHr)} — ${formatTime(endHr, endMin)}${lunchText}`;
+        }
+
+        function getSecondsWorkedToday() {
+            const now = new Date();
+            const startOfWork = new Date(now);
+            startOfWork.setHours(startHour, 0, 0, 0);
+
+            // Calculate lunch timing (starts 3 hours after work start, or at midpoint)
+            const lunchStartHour = startHour + 3;
+            const lunchStart = new Date(now);
+            lunchStart.setHours(lunchStartHour, 0, 0, 0);
+            const lunchEnd = new Date(lunchStart);
+            lunchEnd.setMinutes(lunchEnd.getMinutes() + lunchDurationMinutes);
+
+            // End of work: start + work hours + lunch duration
+            const endOfWork = new Date(startOfWork);
+            endOfWork.setMinutes(startOfWork.getMinutes() + (workHoursPerDay * 60) + lunchDurationMinutes);
+
+            const totalWorkSeconds = workHoursPerDay * 3600;
+
+            if (now < startOfWork) {
+                return { seconds: 0, percent: 0, status: 'before' };
+            }
+
+            if (now >= endOfWork) {
+                return { seconds: totalWorkSeconds, percent: 100, status: 'after' };
+            }
+
+            let secondsWorked = 0;
+
+            // If no lunch break, simple calculation
+            if (lunchDurationMinutes === 0) {
+                secondsWorked = (now - startOfWork) / 1000;
+            } else if (now < lunchStart) {
+                // Before lunch: count from start
+                secondsWorked = (now - startOfWork) / 1000;
+            } else if (now >= lunchStart && now < lunchEnd) {
+                // During lunch: count morning only
+                secondsWorked = (lunchStart - startOfWork) / 1000;
+            } else {
+                // After lunch: morning + time since lunch ended
+                const morningSeconds = (lunchStart - startOfWork) / 1000;
+                const afternoonSeconds = (now - lunchEnd) / 1000;
+                secondsWorked = morningSeconds + afternoonSeconds;
+            }
+
+            const percent = (secondsWorked / totalWorkSeconds) * 100;
+            const status = (lunchDurationMinutes > 0 && now >= lunchStart && now < lunchEnd) ? 'lunch' : 'working';
+
+            return { 
+                seconds: secondsWorked,
+                percent: Math.min(percent, 100),
+                status: status
+            };
+        }
+
+        // Convert amount to Australian currency denominations
+        function calculateCashBreakdown(amount) {
+            const denominations = [
+                { value: 100, name: '$100', type: 'note', class: 'note-100' },
+                { value: 50, name: '$50', type: 'note', class: 'note-50' },
+                { value: 20, name: '$20', type: 'note', class: 'note-20' },
+                { value: 10, name: '$10', type: 'note', class: 'note-10' },
+                { value: 5, name: '$5', type: 'note', class: 'note-5' },
+                { value: 2, name: '$2', type: 'coin', class: 'coin-2' },
+                { value: 1, name: '$1', type: 'coin', class: 'coin-1' },
+                { value: 0.5, name: '50c', type: 'coin', class: 'coin-50c' },
+                { value: 0.2, name: '20c', type: 'coin', class: 'coin-20c' },
+                { value: 0.1, name: '10c', type: 'coin', class: 'coin-10c' },
+                { value: 0.05, name: '5c', type: 'coin', class: 'coin-5c' }
+            ];
+
+            let remaining = amount;
+            const result = [];
+
+            for (const denom of denominations) {
+                const count = Math.floor(remaining / denom.value);
+                if (count > 0) {
+                    result.push({ ...denom, count });
+                    remaining = Math.round((remaining - (count * denom.value)) * 100) / 100;
+                }
+            }
+
+            return result;
+        }
+
+        // Render the cash visualization
+        function updateCashVisualization(amount) {
+            const breakdown = calculateCashBreakdown(amount);
+            const notesContainer = document.getElementById('cashNotes');
+            const coinsContainer = document.getElementById('cashCoins');
+            const breakdownContainer = document.getElementById('cashBreakdown');
+            const emptyMessage = document.getElementById('cashEmpty');
+
+            if (amount < 0.05) {
+                emptyMessage.style.display = 'block';
+                notesContainer.innerHTML = '';
+                coinsContainer.innerHTML = '';
+                breakdownContainer.innerHTML = '';
+                return;
+            }
+
+            emptyMessage.style.display = 'none';
+
+            // Render ALL notes at full size - fanned out like a wad of cash
+            const notes = breakdown.filter(d => d.type === 'note');
+            let notesHTML = '';
+            
+            for (const note of notes) {
+                // Show each note individually (cap at 50 for performance)
+                const displayCount = Math.min(note.count, 50);
+                for (let i = 0; i < displayCount; i++) {
+                    notesHTML += `<div class="note ${note.class}">${note.name}</div>`;
+                }
+                // If there are more than 50, show indicator
+                if (note.count > 50) {
+                    notesHTML += `<div class="note ${note.class}" style="opacity: 0.7;">+${note.count - 50}</div>`;
+                }
+            }
+            notesContainer.innerHTML = notesHTML;
+
+            // Render ALL coins at full size
+            const coins = breakdown.filter(d => d.type === 'coin');
+            let coinsHTML = '';
+            
+            for (const coin of coins) {
+                // Show each coin individually (cap at 30 for performance)
+                const displayCount = Math.min(coin.count, 30);
+                for (let i = 0; i < displayCount; i++) {
+                    coinsHTML += `<div class="coin ${coin.class}">${coin.name}</div>`;
+                }
+                // If there are more than 30, show indicator
+                if (coin.count > 30) {
+                    coinsHTML += `<div class="coin ${coin.class}" style="opacity: 0.6; font-size: 0.5rem;">+${coin.count - 30}</div>`;
+                }
+            }
+            coinsContainer.innerHTML = coinsHTML;
+
+            // Render breakdown summary
+            const breakdownItems = breakdown.map(d => 
+                `<div class="cash-breakdown-item"><span>${d.name}</span><span>×${d.count}</span></div>`
+            ).join('');
+            const totalFormatted = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(amount);
+            breakdownContainer.innerHTML = `
+                <div class="cash-breakdown-grid">${breakdownItems}</div>
+                <div class="cash-total">Total: ${totalFormatted}</div>
+            `;
+        }
+
+        function updateAccumulator() {
+            const { seconds, percent, status } = getSecondsWorkedToday();
+            
+            // Calculate both amounts
+            const earnedNet = seconds * perSecondRateNet;
+            const earnedGross = seconds * perSecondRateGross;
+            
+            // Use the amount based on current tax mode
+            const earned = taxMode === 'net' ? earnedNet : earnedGross;
+            const formatted = formatCurrencyWithCents(earned);
+
+            document.getElementById('accumulatedMain').innerHTML = 
+                `$${formatted.dollars}<span class="accumulator-cents">.${formatted.cents}</span>`;
+
+            // Update progress bar
+            document.getElementById('progressPercent').textContent = `${percent.toFixed(1)}%`;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+
+            // Update cash visualization with current mode amount
+            updateCashVisualization(earned);
+
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+
+            if (status === 'before') {
+                statusBadge.classList.add('inactive');
+                const startTimeText = startHour > 12 ? `${startHour - 12}:00 PM` : `${startHour}:00 AM`;
+                statusText.textContent = `Starts at ${startTimeText}`;
+            } else if (status === 'after') {
+                statusBadge.classList.add('inactive');
+                statusText.textContent = 'Work day complete';
+            } else if (status === 'lunch') {
+                statusBadge.classList.add('inactive');
+                statusText.textContent = 'Lunch break';
+            } else {
+                statusBadge.classList.remove('inactive');
+                statusText.textContent = 'Accumulating...';
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function startAccumulator() {
+            updateAccumulator();
+            updateTime();
+            
+            // Update every 100ms for smooth counting
+            accumulatorInterval = setInterval(updateAccumulator, 100);
+            timeInterval = setInterval(updateTime, 1000);
+        }
+
+        function reset() {
+            if (accumulatorInterval) clearInterval(accumulatorInterval);
+            if (timeInterval) clearInterval(timeInterval);
+            
+            // Reset tax mode to default (after tax)
+            taxMode = 'net';
+            document.getElementById('btnBeforeTax').classList.remove('active');
+            document.getElementById('btnAfterTax').classList.add('active');
+            
+            // Close advanced settings
+            document.getElementById('advancedContent').classList.remove('open');
+            document.getElementById('advancedToggle').classList.remove('open');
+            document.getElementById('advancedArrow').classList.remove('open');
+            
+            document.getElementById('setup').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function toggleAdvancedSettings() {
+            const content = document.getElementById('advancedContent');
+            const toggle = document.getElementById('advancedToggle');
+            const arrow = document.getElementById('advancedArrow');
+            
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+
+        function applyAdvancedSettings() {
+            // Get values from inputs
+            workHoursPerDay = parseFloat(document.getElementById('workHours').value) || 8;
+            startHour = parseInt(document.getElementById('startTime').value) || 9;
+            lunchDurationMinutes = parseInt(document.getElementById('lunchDuration').value) || 60;
+            
+            // Recalculate per-second rates with new hours
+            const totalWorkSecondsPerYear = WORK_DAYS_PER_YEAR * workHoursPerDay * 3600;
+            perSecondRateNet = storedNetSalary / totalWorkSecondsPerYear;
+            perSecondRateGross = storedGrossSalary / totalWorkSecondsPerYear;
+            
+            // Update all displays
+            updateDisplayForTaxMode();
+            updateAccumulator();
+        }
+
+        // Handle Enter key
+        document.getElementById('salary').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') calculate();
+        });
+    </script>
+</body>
+</html>
+

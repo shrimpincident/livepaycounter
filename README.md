@@ -1,4 +1,4 @@
-# Pay Accumulator 💰
+# Live Pay Counter 💰
 
 A real-time earnings visualizer for Australian workers. Watch your salary accumulate second-by-second throughout your work day.
 

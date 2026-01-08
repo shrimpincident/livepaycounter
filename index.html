@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pay Accumulator - Real-time Australian Salary Tracker</title>
+    <title>Live Pay Counter - Real-time Australian Salary Tracker</title>
     <meta name="description" content="Watch your Australian salary accumulate in real-time. Calculates after-tax earnings with accurate 2024-25 tax rates, Medicare Levy, and visualizes your earnings as cash.">
     <meta name="keywords" content="salary calculator, australian tax, pay calculator, earnings tracker, take home pay">
-    <meta name="author" content="Pay Accumulator">
+    <meta name="author" content="Live Pay Counter">
     
     <!-- Open Graph / Social -->
-    <meta property="og:title" content="Pay Accumulator - Real-time Salary Tracker">
+    <meta property="og:title" content="Live Pay Counter - Real-time Salary Tracker">
     <meta property="og:description" content="Watch your Australian salary accumulate second-by-second. See your after-tax earnings grow in real-time with cash visualization.">
     <meta property="og:type" content="website">
     
@@ -842,6 +842,41 @@
             animation: none;
         }
 
+        .status-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .fast-mode-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fast-mode-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .fast-mode-btn.active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: #0a0f1a;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -1082,6 +1117,197 @@
             }
         }
 
+        /* Sneaky Mode Toggle */
+        .sneaky-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 9999;
+            opacity: 0.6;
+        }
+
+        .sneaky-toggle:hover {
+            opacity: 1;
+            border-color: var(--text-muted);
+        }
+
+        /* Fake News Page */
+        .fake-news-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f5f5f5;
+            z-index: 9998;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        .fake-news-page.active {
+            display: block;
+        }
+
+        .fake-news-header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .fake-news-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .fake-news-logo span {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .fake-news-nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .fake-news-nav a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .fake-news-nav a:hover {
+            color: #1a1a2e;
+        }
+
+        .fake-news-search {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f0f0f0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .fake-news-search input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            width: 150px;
+        }
+
+        .fake-news-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .fake-news-main h2 {
+            font-size: 1rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fake-article {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .fake-article h3 {
+            font-size: 1.2rem;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .fake-article-meta {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 0.75rem;
+        }
+
+        .fake-article p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .fake-news-sidebar h3 {
+            font-size: 0.9rem;
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fake-trending {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .fake-trending-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .fake-trending-item:last-child {
+            border-bottom: none;
+        }
+
+        .fake-trending-item span {
+            color: #999;
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .fake-news-content {
+                grid-template-columns: 1fr;
+            }
+            .fake-news-nav {
+                display: none;
+            }
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -1133,7 +1359,7 @@
         <header>
             <div class="logo">
                 <div class="logo-icon">💰</div>
-                <h1>Pay Accumulator</h1>
+                <h1>Live Pay Counter</h1>
             </div>
             <p class="subtitle">Watch your earnings grow in real-time</p>
         </header>
@@ -1197,9 +1423,14 @@
                 </div>
                 
                 <div class="rate-info" id="rateInfo"></div>
-                <div class="status-badge" id="statusBadge">
-                    <span class="pulse-dot"></span>
-                    <span id="statusText">Accumulating...</span>
+                <div class="status-row">
+                    <div class="status-badge" id="statusBadge">
+                        <span class="pulse-dot"></span>
+                        <span id="statusText">Accumulating...</span>
+                    </div>
+                    <button class="fast-mode-btn" id="fastModeBtn" onclick="toggleFastMode()" title="Fast mode">
+                        ⚡
+                    </button>
                 </div>
             </div>
 
@@ -1217,15 +1448,7 @@
                         </div>
                         <div class="advanced-item">
                             <label for="startTime">Start Time</label>
-                            <select id="startTime" onchange="applyAdvancedSettings()">
-                                <option value="6">6:00 AM</option>
-                                <option value="7">7:00 AM</option>
-                                <option value="8">8:00 AM</option>
-                                <option value="9" selected>9:00 AM</option>
-                                <option value="10">10:00 AM</option>
-                                <option value="11">11:00 AM</option>
-                                <option value="12">12:00 PM</option>
-                            </select>
+                            <input type="time" id="startTime" value="09:00" onchange="applyAdvancedSettings()">
                         </div>
                         <div class="advanced-item">
                             <label for="lunchDuration">Lunch Break</label>
@@ -1331,6 +1554,90 @@
         </footer>
     </div>
 
+    <!-- Sneaky Mode Toggle (always visible) -->
+    <button class="sneaky-toggle" id="sneakyToggle" onclick="toggleSneakyMode()" title="Toggle sneaky mode (ESC)">👁️</button>
+
+    <!-- Fake News Page -->
+    <div class="fake-news-page" id="fakeNewsPage">
+        <header class="fake-news-header">
+            <div class="fake-news-logo">
+                🤖 <span>AI Tech News Hub</span>
+            </div>
+            <nav class="fake-news-nav">
+                <a href="#">Latest</a>
+                <a href="#">Machine Learning</a>
+                <a href="#">Robotics</a>
+                <a href="#">Research</a>
+                <a href="#">Industry</a>
+            </nav>
+            <div class="fake-news-search">
+                🔍 <input type="text" placeholder="Search articles...">
+            </div>
+        </header>
+        
+        <div class="fake-news-content">
+            <main class="fake-news-main">
+                <h2>Latest News</h2>
+                
+                <article class="fake-article">
+                    <h3>OpenAI Announces Major Breakthrough in Language Model Efficiency</h3>
+                    <div class="fake-article-meta">January 9, 2026 • 5 min read</div>
+                    <p>Researchers at OpenAI have unveiled a new architecture that reduces computational requirements by 40% while maintaining performance benchmarks. The breakthrough could make advanced AI more accessible to smaller organizations.</p>
+                </article>
+                
+                <article class="fake-article">
+                    <h3>Google DeepMind's AlphaFold 4 Achieves Near-Perfect Protein Structure Prediction</h3>
+                    <div class="fake-article-meta">January 9, 2026 • 8 min read</div>
+                    <p>The latest iteration of AlphaFold demonstrates unprecedented accuracy in predicting protein structures, potentially accelerating drug discovery timelines by years according to pharmaceutical industry experts.</p>
+                </article>
+                
+                <article class="fake-article">
+                    <h3>EU Passes Comprehensive AI Regulation Framework</h3>
+                    <div class="fake-article-meta">January 8, 2026 • 6 min read</div>
+                    <p>The European Union has finalized its AI Act, establishing strict guidelines for high-risk AI applications. Companies will have 18 months to comply with the new regulations.</p>
+                </article>
+                
+                <article class="fake-article">
+                    <h3>Anthropic Releases Claude 4 with Enhanced Reasoning Capabilities</h3>
+                    <div class="fake-article-meta">January 8, 2026 • 4 min read</div>
+                    <p>The new model showcases significant improvements in mathematical reasoning and code generation, with benchmark scores surpassing previous state-of-the-art systems.</p>
+                </article>
+                
+                <article class="fake-article">
+                    <h3>Tesla's Optimus Robot Begins Limited Production Run</h3>
+                    <div class="fake-article-meta">January 7, 2026 • 7 min read</div>
+                    <p>After years of development, Tesla has started manufacturing its humanoid robot for internal factory use, with plans for commercial availability in late 2027.</p>
+                </article>
+            </main>
+            
+            <aside class="fake-news-sidebar">
+                <h3>Trending Topics</h3>
+                <div class="fake-trending">
+                    <div class="fake-trending-item">
+                        Large Language Models
+                        <span>2.4k articles this week</span>
+                    </div>
+                    <div class="fake-trending-item">
+                        AI Safety Research
+                        <span>1.8k articles this week</span>
+                    </div>
+                    <div class="fake-trending-item">
+                        Autonomous Vehicles
+                        <span>1.2k articles this week</span>
+                    </div>
+                    <div class="fake-trending-item">
+                        Neural Networks
+                        <span>986 articles this week</span>
+                    </div>
+                    <div class="fake-trending-item">
+                        Computer Vision
+                        <span>754 articles this week</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
     <script>
         let accumulatorInterval = null;
         let timeInterval = null;
@@ -1343,8 +1650,13 @@
         // Configurable settings
         let workHoursPerDay = 8;
         let startHour = 9;
+        let startMinute = 0;
         let lunchDurationMinutes = 60;
+        let fastMode = false;
+        let sneakyMode = false;
         const WORK_DAYS_PER_YEAR = 260; // ~52 weeks × 5 days
+        const ORIGINAL_TITLE = 'Live Pay Counter - Real-time Australian Salary Tracker';
+        const SNEAKY_TITLE = 'AI Tech News Hub - Latest Updates';
 
         // Australian Tax Brackets 2024-25
         function calculateIncomeTax(income) {
@@ -1490,10 +1802,10 @@
         }
         
         function updateProgressTimeText() {
-            const startHr = startHour;
-            const endMinutes = (startHour * 60) + (workHoursPerDay * 60) + lunchDurationMinutes;
-            const endHr = Math.floor(endMinutes / 60);
-            const endMin = Math.round(endMinutes % 60);
+            const startTotalMinutes = (startHour * 60) + startMinute;
+            const endTotalMinutes = startTotalMinutes + (workHoursPerDay * 60) + lunchDurationMinutes;
+            const endHr = Math.floor(endTotalMinutes / 60);
+            const endMin = Math.round(endTotalMinutes % 60);
             
             const formatTime = (hr, min = 0) => {
                 const period = hr >= 12 ? 'PM' : 'AM';
@@ -1506,18 +1818,17 @@
                 lunchText = lunchDurationMinutes >= 60 ? ` (${lunchDurationMinutes / 60}hr lunch)` : ` (${lunchDurationMinutes}min lunch)`;
             }
             
-            document.getElementById('progressTime').textContent = `${formatTime(startHr)} — ${formatTime(endHr, endMin)}${lunchText}`;
+            document.getElementById('progressTime').textContent = `${formatTime(startHour, startMinute)} — ${formatTime(endHr, endMin)}${lunchText}`;
         }
 
         function getSecondsWorkedToday() {
             const now = new Date();
             const startOfWork = new Date(now);
-            startOfWork.setHours(startHour, 0, 0, 0);
+            startOfWork.setHours(startHour, startMinute, 0, 0);
 
-            // Calculate lunch timing (starts 3 hours after work start, or at midpoint)
-            const lunchStartHour = startHour + 3;
-            const lunchStart = new Date(now);
-            lunchStart.setHours(lunchStartHour, 0, 0, 0);
+            // Calculate lunch timing (starts 3 hours after work start)
+            const lunchStart = new Date(startOfWork);
+            lunchStart.setMinutes(lunchStart.getMinutes() + 180); // 3 hours after start
             const lunchEnd = new Date(lunchStart);
             lunchEnd.setMinutes(lunchEnd.getMinutes() + lunchDurationMinutes);
 
@@ -1665,10 +1976,18 @@
             
             // Use the amount based on current tax mode
             const earned = taxMode === 'net' ? earnedNet : earnedGross;
-            const formatted = formatCurrencyWithCents(earned);
-
-            document.getElementById('accumulatedMain').innerHTML = 
-                `$${formatted.dollars}<span class="accumulator-cents">.${formatted.cents}</span>`;
+            
+            // Format based on fast mode
+            if (fastMode) {
+                const dollars = Math.floor(earned);
+                const decimals = ((earned - dollars) * 10000).toFixed(0).padStart(4, '0');
+                document.getElementById('accumulatedMain').innerHTML = 
+                    `$${new Intl.NumberFormat('en-AU').format(dollars)}<span class="accumulator-cents">.${decimals}</span>`;
+            } else {
+                const formatted = formatCurrencyWithCents(earned);
+                document.getElementById('accumulatedMain').innerHTML = 
+                    `$${formatted.dollars}<span class="accumulator-cents">.${formatted.cents}</span>`;
+            }
 
             // Update progress bar
             document.getElementById('progressPercent').textContent = `${percent.toFixed(1)}%`;
@@ -1682,7 +2001,7 @@
 
             if (status === 'before') {
                 statusBadge.classList.add('inactive');
-                const startTimeText = startHour > 12 ? `${startHour - 12}:00 PM` : `${startHour}:00 AM`;
+                const startTimeText = formatTimeForDisplay(startHour, startMinute);
                 statusText.textContent = `Starts at ${startTimeText}`;
             } else if (status === 'after') {
                 statusBadge.classList.add('inactive');
@@ -1694,6 +2013,19 @@
                 statusBadge.classList.remove('inactive');
                 statusText.textContent = 'Accumulating...';
             }
+        }
+        
+        function formatTimeForDisplay(hour, minute) {
+            const period = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            const displayMin = minute > 0 ? `:${minute.toString().padStart(2, '0')}` : ':00';
+            return `${displayHour}${displayMin} ${period}`;
+        }
+        
+        function toggleFastMode() {
+            fastMode = !fastMode;
+            document.getElementById('fastModeBtn').classList.toggle('active', fastMode);
+            updateAccumulator();
         }
 
         function updateTime() {
@@ -1742,7 +2074,13 @@
         function applyAdvancedSettings() {
             // Get values from inputs
             workHoursPerDay = parseFloat(document.getElementById('workHours').value) || 8;
-            startHour = parseInt(document.getElementById('startTime').value) || 9;
+            
+            // Parse time input (format: "HH:MM")
+            const timeValue = document.getElementById('startTime').value || '09:00';
+            const [hours, minutes] = timeValue.split(':').map(Number);
+            startHour = hours;
+            startMinute = minutes || 0;
+            
             lunchDurationMinutes = parseInt(document.getElementById('lunchDuration').value) || 60;
             
             // Recalculate per-second rates with new hours
@@ -1758,6 +2096,30 @@
         // Handle Enter key
         document.getElementById('salary').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') calculate();
+        });
+
+        // Sneaky Mode
+        function toggleSneakyMode() {
+            sneakyMode = !sneakyMode;
+            const fakeNewsPage = document.getElementById('fakeNewsPage');
+            const container = document.querySelector('.container');
+            
+            if (sneakyMode) {
+                fakeNewsPage.classList.add('active');
+                container.style.display = 'none';
+                document.title = SNEAKY_TITLE;
+            } else {
+                fakeNewsPage.classList.remove('active');
+                container.style.display = 'block';
+                document.title = ORIGINAL_TITLE;
+            }
+        }
+
+        // ESC key to toggle sneaky mode
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                toggleSneakyMode();
+            }
         });
     </script>
 </body>

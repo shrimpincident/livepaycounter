@@ -1413,14 +1413,19 @@
             margin-top: 2rem;
         }
 
+        footer p {
+            margin: 0.6rem 0;
+        }
+
         footer a {
             color: var(--text-muted);
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: color 0.2s ease, text-decoration 0.2s ease;
         }
 
         footer a:hover {
             color: var(--accent-green);
+            text-decoration: underline;
         }
 
         /* Responsive */
@@ -1669,7 +1674,7 @@
         </div>
 
         <footer>
-            <p>Australian Tax Rates 2024-25</p>
+            <p><a href="https://www.ato.gov.au/tax-rates-and-codes/tax-rates-australian-residents" target="_blank" rel="noopener">Australian Tax Rates 2024-25</a></p>
             <p><a href="https://forms.gle/XW4hXWFY3io87hbX6" target="_blank" rel="noopener">💬 Send Feedback</a></p>
         </footer>
     </div>
@@ -2054,9 +2059,9 @@
         // Convert amount to Crown Lager beer denominations
         function calculateBeerBreakdown(amount) {
             const denominations = [
-                { value: BEER_PRICES.case24, name: 'Case of 24', type: 'case', class: 'beer-case' },
-                { value: BEER_PRICES.sixpack, name: 'Six Pack', type: 'sixpack', class: 'beer-sixpack' },
-                { value: BEER_PRICES.single, name: 'Single', type: 'single', class: 'beer-single' }
+                { value: BEER_PRICES.case24, name: 'Cases', type: 'case', class: 'beer-case' },
+                { value: BEER_PRICES.sixpack, name: 'Six packs', type: 'sixpack', class: 'beer-sixpack' },
+                { value: BEER_PRICES.single, name: 'Stubbies', type: 'single', class: 'beer-single' }
             ];
 
             let remaining = amount;
@@ -2090,11 +2095,11 @@
         function updateCurrencySubtitle() {
             const subtitle = document.getElementById('cashSubtitle');
             if (currentCurrency === 'cash') {
-                subtitle.textContent = taxMode === 'after' 
+                subtitle.textContent = taxMode === 'net' 
                     ? "Today's after-tax earnings as physical currency"
                     : "Today's before-tax earnings as physical currency";
             } else {
-                subtitle.textContent = taxMode === 'after' 
+                subtitle.textContent = taxMode === 'net' 
                     ? "Today's after-tax earnings in Crown Lager 🍺"
                     : "Today's before-tax earnings in Crown Lager 🍺";
             }

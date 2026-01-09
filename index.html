@@ -581,6 +581,78 @@
             margin-bottom: 1.5rem;
         }
 
+        .currency-title {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .currency-title select {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .currency-title select:hover {
+            border-color: var(--accent-green);
+        }
+
+        .currency-title select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Beer visualization */
+        .beer {
+            display: inline-block;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 3px;
+            flex-shrink: 0;
+        }
+
+        .beer-case {
+            width: 90px;
+            height: 70px;
+            background-image: url('Crown Lager Case.png');
+        }
+
+        .beer-sixpack {
+            width: 70px;
+            height: 55px;
+            background-image: url('Crown Lager Six Pack.png');
+        }
+
+        .beer-single {
+            width: 25px;
+            height: 70px;
+            background-image: url('Crown Lager Stubby.png');
+        }
+
+        .beer-overflow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(218, 165, 32, 0.9);
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            margin: 3px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
         .cash-wallet {
             background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             border-radius: 16px;
@@ -1111,6 +1183,28 @@
             cursor: pointer;
         }
 
+        .advanced-checkbox {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-gold);
+            cursor: pointer;
+        }
+
         @media (max-width: 480px) {
             .advanced-grid {
                 grid-template-columns: 1fr;
@@ -1444,7 +1538,7 @@
                     <div class="advanced-grid">
                         <div class="advanced-item">
                             <label for="workHours">Working Hours/Day</label>
-                            <input type="number" id="workHours" value="8" min="1" max="24" step="0.5" onchange="applyAdvancedSettings()">
+                            <input type="number" id="workHours" value="7.6" min="1" max="24" step="0.1" onchange="applyAdvancedSettings()">
                         </div>
                         <div class="advanced-item">
                             <label for="startTime">Start Time</label>
@@ -1455,12 +1549,48 @@
                             <select id="lunchDuration" onchange="applyAdvancedSettings()">
                                 <option value="0">No break</option>
                                 <option value="15">15 minutes</option>
-                                <option value="30">30 minutes</option>
+                                <option value="30" selected>30 minutes</option>
                                 <option value="45">45 minutes</option>
-                                <option value="60" selected>60 minutes</option>
+                                <option value="60">60 minutes</option>
                             </select>
                         </div>
                     </div>
+                    <div class="advanced-checkbox">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="pauseLunch" onchange="applyAdvancedSettings()">
+                            <span>Pause timer during lunch break</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash/Beer Visualization -->
+            <div class="card cash-card">
+                <div class="card-title currency-title">
+                    💵 Your Earnings in 
+                    <select id="currencySelect" onchange="changeCurrency()">
+                        <option value="cash">Cash</option>
+                        <option value="beer">Beer</option>
+                    </select>
+                </div>
+                <div class="cash-subtitle" id="cashSubtitle">Today's after-tax earnings as physical currency</div>
+                
+                <div class="cash-wallet" id="cashWallet">
+                    <div class="cash-empty" id="cashEmpty">
+                        <span>Start working to see your cash pile up!</span>
+                    </div>
+                    
+                    <div class="cash-notes" id="cashNotes">
+                        <!-- Notes/Cases will be dynamically inserted here -->
+                    </div>
+                    
+                    <div class="cash-coins" id="cashCoins">
+                        <!-- Coins/Singles will be dynamically inserted here -->
+                    </div>
+                </div>
+                
+                <div class="cash-breakdown" id="cashBreakdown">
+                    <!-- Breakdown text will be shown here -->
                 </div>
             </div>
 
@@ -1519,30 +1649,6 @@
                             <span class="earnings-value highlight" id="perYear">$0</span>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Cash Visualization -->
-            <div class="card cash-card">
-                <div class="card-title">💵 Your Earnings in Cash</div>
-                <div class="cash-subtitle" id="cashSubtitle">Today's after-tax earnings as physical currency</div>
-                
-                <div class="cash-wallet" id="cashWallet">
-                    <div class="cash-empty" id="cashEmpty">
-                        <span>Start working to see your cash pile up!</span>
-                    </div>
-                    
-                    <div class="cash-notes" id="cashNotes">
-                        <!-- Notes will be dynamically inserted here -->
-                    </div>
-                    
-                    <div class="cash-coins" id="cashCoins">
-                        <!-- Coins will be dynamically inserted here -->
-                    </div>
-                </div>
-                
-                <div class="cash-breakdown" id="cashBreakdown">
-                    <!-- Breakdown text will be shown here -->
                 </div>
             </div>
 
@@ -1648,15 +1754,24 @@
         let storedNetSalary = 0;
         
         // Configurable settings
-        let workHoursPerDay = 8;
+        let workHoursPerDay = 7.6;
         let startHour = 9;
         let startMinute = 0;
-        let lunchDurationMinutes = 60;
+        let lunchDurationMinutes = 30;
         let fastMode = false;
         let sneakyMode = false;
+        let pauseDuringLunch = false;
+        let currentCurrency = 'cash'; // 'cash' or 'beer'
         const WORK_DAYS_PER_YEAR = 260; // ~52 weeks × 5 days
         const ORIGINAL_TITLE = 'Live Pay Counter - Real-time Australian Salary Tracker';
         const SNEAKY_TITLE = 'AI Tech News Hub - Latest Updates';
+        
+        // Crown Lager prices in NSW Australia (approximate)
+        const BEER_PRICES = {
+            case24: 60,    // Case of 24
+            sixpack: 20,   // Six pack
+            single: 5      // Single bottle
+        };
 
         // Australian Tax Brackets 2024-25
         function calculateIncomeTax(income) {
@@ -1747,6 +1862,15 @@
                 document.getElementById('mlsRow').style.display = 'none';
             }
 
+            // Read settings from inputs (in case user changed them before clicking Start)
+            workHoursPerDay = parseFloat(document.getElementById('workHours').value) || 7.6;
+            const timeValue = document.getElementById('startTime').value || '09:00';
+            const [hours, minutes] = timeValue.split(':').map(Number);
+            startHour = hours;
+            startMinute = minutes || 0;
+            lunchDurationMinutes = parseInt(document.getElementById('lunchDuration').value) || 30;
+            pauseDuringLunch = document.getElementById('pauseLunch').checked;
+
             // Apply current tax mode
             updateDisplayForTaxMode();
 
@@ -1793,9 +1917,8 @@
             document.getElementById('perMonth').textContent = formatCurrency(salary / 12);
             document.getElementById('perYear').textContent = formatCurrency(salary);
             
-            // Update cash subtitle
-            const cashLabel = isNet ? 'after-tax' : 'before-tax';
-            document.getElementById('cashSubtitle').textContent = `Today's ${cashLabel} earnings as physical currency`;
+            // Update currency subtitle (handles both cash and beer)
+            updateCurrencySubtitle();
             
             // Update progress time text
             updateProgressTimeText();
@@ -1847,25 +1970,35 @@
             }
 
             let secondsWorked = 0;
+            let status = 'working';
 
-            // If no lunch break, simple calculation
-            if (lunchDurationMinutes === 0) {
-                secondsWorked = (now - startOfWork) / 1000;
-            } else if (now < lunchStart) {
-                // Before lunch: count from start
-                secondsWorked = (now - startOfWork) / 1000;
-            } else if (now >= lunchStart && now < lunchEnd) {
-                // During lunch: count morning only
-                secondsWorked = (lunchStart - startOfWork) / 1000;
+            // Check if we're during lunch time
+            const isDuringLunch = lunchDurationMinutes > 0 && now >= lunchStart && now < lunchEnd;
+
+            // If pause during lunch is enabled, stop counting during lunch
+            if (pauseDuringLunch && lunchDurationMinutes > 0) {
+                if (now < lunchStart) {
+                    // Before lunch: count from start
+                    secondsWorked = (now - startOfWork) / 1000;
+                } else if (isDuringLunch) {
+                    // During lunch: count morning only (paused)
+                    secondsWorked = (lunchStart - startOfWork) / 1000;
+                    status = 'lunch';
+                } else {
+                    // After lunch: morning + time since lunch ended
+                    const morningSeconds = (lunchStart - startOfWork) / 1000;
+                    const afternoonSeconds = (now - lunchEnd) / 1000;
+                    secondsWorked = morningSeconds + afternoonSeconds;
+                }
             } else {
-                // After lunch: morning + time since lunch ended
-                const morningSeconds = (lunchStart - startOfWork) / 1000;
-                const afternoonSeconds = (now - lunchEnd) / 1000;
-                secondsWorked = morningSeconds + afternoonSeconds;
+                // Don't pause during lunch - just count continuously
+                secondsWorked = (now - startOfWork) / 1000;
+                if (isDuringLunch) {
+                    status = 'lunch';
+                }
             }
 
             const percent = (secondsWorked / totalWorkSeconds) * 100;
-            const status = (lunchDurationMinutes > 0 && now >= lunchStart && now < lunchEnd) ? 'lunch' : 'working';
 
             return { 
                 seconds: secondsWorked,
@@ -1904,8 +2037,62 @@
             return result;
         }
 
-        // Render the cash visualization
+        // Convert amount to Crown Lager beer denominations
+        function calculateBeerBreakdown(amount) {
+            const denominations = [
+                { value: BEER_PRICES.case24, name: 'Case of 24', type: 'case', class: 'beer-case' },
+                { value: BEER_PRICES.sixpack, name: 'Six Pack', type: 'sixpack', class: 'beer-sixpack' },
+                { value: BEER_PRICES.single, name: 'Single', type: 'single', class: 'beer-single' }
+            ];
+
+            let remaining = amount;
+            const result = [];
+
+            for (const denom of denominations) {
+                const count = Math.floor(remaining / denom.value);
+                if (count > 0) {
+                    result.push({ ...denom, count });
+                    remaining = Math.round((remaining - (count * denom.value)) * 100) / 100;
+                }
+            }
+
+            return result;
+        }
+
+        // Change currency type
+        function changeCurrency() {
+            currentCurrency = document.getElementById('currencySelect').value;
+            updateCurrencySubtitle();
+            // Update empty message based on currency
+            const emptyMessage = document.getElementById('cashEmpty').querySelector('span');
+            if (currentCurrency === 'beer') {
+                emptyMessage.textContent = 'Keep working to earn your first beer! 🍺';
+            } else {
+                emptyMessage.textContent = 'Start working to see your cash pile up!';
+            }
+            updateAccumulator();
+        }
+
+        function updateCurrencySubtitle() {
+            const subtitle = document.getElementById('cashSubtitle');
+            if (currentCurrency === 'cash') {
+                subtitle.textContent = taxMode === 'after' 
+                    ? "Today's after-tax earnings as physical currency"
+                    : "Today's before-tax earnings as physical currency";
+            } else {
+                subtitle.textContent = taxMode === 'after' 
+                    ? "Today's after-tax earnings in Crown Lager 🍺"
+                    : "Today's before-tax earnings in Crown Lager 🍺";
+            }
+        }
+
+        // Render the visualization (cash or beer)
         function updateCashVisualization(amount) {
+            if (currentCurrency === 'beer') {
+                updateBeerVisualization(amount);
+                return;
+            }
+            
             const breakdown = calculateCashBreakdown(amount);
             const notesContainer = document.getElementById('cashNotes');
             const coinsContainer = document.getElementById('cashCoins');
@@ -1964,6 +2151,79 @@
             breakdownContainer.innerHTML = `
                 <div class="cash-breakdown-grid">${breakdownItems}</div>
                 <div class="cash-total">Total: ${totalFormatted}</div>
+            `;
+        }
+
+        // Render beer visualization
+        function updateBeerVisualization(amount) {
+            const breakdown = calculateBeerBreakdown(amount);
+            const notesContainer = document.getElementById('cashNotes');
+            const coinsContainer = document.getElementById('cashCoins');
+            const breakdownContainer = document.getElementById('cashBreakdown');
+            const emptyMessage = document.getElementById('cashEmpty');
+
+            if (amount < BEER_PRICES.single) {
+                emptyMessage.style.display = 'block';
+                emptyMessage.querySelector('span').textContent = 'Keep working to earn your first beer! 🍺';
+                notesContainer.innerHTML = '';
+                coinsContainer.innerHTML = '';
+                breakdownContainer.innerHTML = '';
+                return;
+            }
+
+            emptyMessage.style.display = 'none';
+
+            // Render cases and six packs in the "notes" area
+            const largePacks = breakdown.filter(d => d.type === 'case' || d.type === 'sixpack');
+            let casesHTML = '';
+            
+            for (const pack of largePacks) {
+                // Cap cases at 20 for performance, six packs at 30
+                const maxDisplay = pack.type === 'case' ? 20 : 30;
+                const displayCount = Math.min(pack.count, maxDisplay);
+                for (let i = 0; i < displayCount; i++) {
+                    casesHTML += `<div class="beer ${pack.class}"></div>`;
+                }
+                if (pack.count > maxDisplay) {
+                    const extra = pack.count - maxDisplay;
+                    const label = pack.type === 'case' ? 'cases' : 'six packs';
+                    casesHTML += `<div class="beer-overflow">+${extra} ${label}</div>`;
+                }
+            }
+            notesContainer.innerHTML = casesHTML;
+
+            // Render single bottles in the "coins" area
+            const singles = breakdown.filter(d => d.type === 'single');
+            let singlesHTML = '';
+            
+            for (const single of singles) {
+                // Cap at 24 (one case worth)
+                const displayCount = Math.min(single.count, 24);
+                for (let i = 0; i < displayCount; i++) {
+                    singlesHTML += `<div class="beer ${single.class}"></div>`;
+                }
+                if (single.count > 24) {
+                    singlesHTML += `<div class="beer-overflow">+${single.count - 24} stubbies</div>`;
+                }
+            }
+            coinsContainer.innerHTML = singlesHTML;
+
+            // Render breakdown summary
+            const totalBeers = breakdown.reduce((sum, d) => {
+                if (d.type === 'case') return sum + (d.count * 24);
+                if (d.type === 'sixpack') return sum + (d.count * 6);
+                return sum + d.count;
+            }, 0);
+
+            const breakdownItems = breakdown.map(d => {
+                const beerCount = d.type === 'case' ? d.count * 24 : (d.type === 'sixpack' ? d.count * 6 : d.count);
+                return `<div class="cash-breakdown-item"><span>${d.name}</span><span>×${d.count} (${beerCount} 🍺)</span></div>`;
+            }).join('');
+            
+            const totalFormatted = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(amount);
+            breakdownContainer.innerHTML = `
+                <div class="cash-breakdown-grid">${breakdownItems}</div>
+                <div class="cash-total">Total: ${totalBeers} beers (${totalFormatted})</div>
             `;
         }
 
@@ -2073,7 +2333,7 @@
 
         function applyAdvancedSettings() {
             // Get values from inputs
-            workHoursPerDay = parseFloat(document.getElementById('workHours').value) || 8;
+            workHoursPerDay = parseFloat(document.getElementById('workHours').value) || 7.6;
             
             // Parse time input (format: "HH:MM")
             const timeValue = document.getElementById('startTime').value || '09:00';
@@ -2081,7 +2341,8 @@
             startHour = hours;
             startMinute = minutes || 0;
             
-            lunchDurationMinutes = parseInt(document.getElementById('lunchDuration').value) || 60;
+            lunchDurationMinutes = parseInt(document.getElementById('lunchDuration').value) || 30;
+            pauseDuringLunch = document.getElementById('pauseLunch').checked;
             
             // Recalculate per-second rates with new hours
             const totalWorkSecondsPerYear = WORK_DAYS_PER_YEAR * workHoursPerDay * 3600;

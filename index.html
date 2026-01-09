@@ -16,6 +16,9 @@
     <!-- Theme color for mobile browsers -->
     <meta name="theme-color" content="#0a0f1a">
     
+    <!-- Favicon (dynamically changed for sneaky mode) -->
+    <link rel="icon" id="favicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💸</text></svg>">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -1410,6 +1413,16 @@
             margin-top: 2rem;
         }
 
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent-green);
+        }
+
         /* Responsive */
         @media (max-width: 480px) {
             .container {
@@ -1657,6 +1670,7 @@
 
         <footer>
             <p>Australian Tax Rates 2024-25</p>
+            <p><a href="https://forms.gle/XW4hXWFY3io87hbX6" target="_blank" rel="noopener">💬 Send Feedback</a></p>
         </footer>
     </div>
 
@@ -2360,19 +2374,25 @@
         });
 
         // Sneaky Mode
+        const FAVICON_NORMAL = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💸</text></svg>";
+        const FAVICON_SNEAKY = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>";
+
         function toggleSneakyMode() {
             sneakyMode = !sneakyMode;
             const fakeNewsPage = document.getElementById('fakeNewsPage');
             const container = document.querySelector('.container');
+            const favicon = document.getElementById('favicon');
             
             if (sneakyMode) {
                 fakeNewsPage.classList.add('active');
                 container.style.display = 'none';
                 document.title = SNEAKY_TITLE;
+                favicon.href = FAVICON_SNEAKY;
             } else {
                 fakeNewsPage.classList.remove('active');
                 container.style.display = 'block';
                 document.title = ORIGINAL_TITLE;
+                favicon.href = FAVICON_NORMAL;
             }
         }
 
